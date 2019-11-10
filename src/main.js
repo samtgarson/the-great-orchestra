@@ -1,13 +1,20 @@
-import Vue from 'vue';
-import App from './App.vue';
-import router from './router';
-import store from './store';
-import './registerServiceWorker';
+import Vue from 'vue'
+import App from './App.vue'
+import router from './router'
+import store from './store'
+import './registerServiceWorker'
 
-Vue.config.productionTip = false;
+Vue.config.productionTip = false
 
-new Vue({
+if (process.env.NODE_ENV === 'development') {
+  // require('dom-console')()
+}
+
+
+window.$vm = new Vue({
   router,
   store,
   render: h => h(App),
-}).$mount('#app');
+})
+  
+window.$vm.$mount('#app')

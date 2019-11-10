@@ -1,4 +1,6 @@
-# great-orchestra
+**the-great-orchestra**_—a canvas and audio web experiment_
+
+This project is inspired by UVA's [The Great Animal Orchestra](https://www.uva.co.uk/features/great-animal-orchestra) which I saw at 180 The Strand in November of 2019.
 
 ## Project setup
 ```

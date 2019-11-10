@@ -13,7 +13,7 @@ const FFT_SIZE = 1024
 const params = { fullscreen: true, type: Two.Types.canvas }
 const two = new Two(params)
 let dataArray
-let liveLines = []
+let liveLines
 
 export default {
   name: 'visualiser',
@@ -35,6 +35,8 @@ export default {
   methods: {
     generateLiveLines () {
       const gap = two.width / this.bufferLength
+
+      liveLines = []
       for (let i = 0; i < this.bufferLength; i++) {
         const y = two.height - (i * gap)
         const line = two.makeLine(0, y, LIVE_WIDTH, y)

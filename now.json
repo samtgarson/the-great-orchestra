@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "name": "the-great-orchestra",
+  "alias": "great-orchestra.samgarson.com",
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@now/static-build"
+    }
+  ]
+}

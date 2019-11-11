@@ -1,6 +1,6 @@
 <template>
   <div v-if="analyser">
-    <visualiser :analyser="analyser" />
+    <visualiser :analyser="analyser" :color="color" />
     <button id="stop" @click="stop">Stop</button>
   </div>
   <div class="orchestra" v-else-if="!error">
@@ -23,6 +23,11 @@ export default {
       analyser: null,
       stream: null,
       error: false
+    }
+  },
+  computed: {
+    color () {
+      return this.$route.query.color || 'red'
     }
   },
   methods: {

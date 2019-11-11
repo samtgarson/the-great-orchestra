@@ -17,7 +17,7 @@ let liveLines
 
 export default {
   name: 'visualiser',
-  props: ['analyser'],
+  props: ['analyser', 'color'],
   data () {
     return { bufferLength: 0, running: true }
   },
@@ -26,21 +26,33 @@ export default {
     this.bufferLength = this.analyser.frequencyBinCount
     dataArray = new Uint8Array(this.bufferLength)
 
-    this.generateLiveLines()
+    two.bind('resize', () => this.setup())
     two.bind('update', () => this.draw())
-    this.drawDivider()
     
+    this.setup()
     two.appendTo(this.$el).play()
   },
   methods: {
+    getGap () {
+      const EXPO_FACTOR = 0.9999
+      const gap = (two.height / this.bufferLength) * 1.3
+
+      return i => i * (gap * Math.pow(EXPO_FACTOR, i))
+    },
+    setup () {
+      two.clear()
+
+      this.drawDivider()
+      this.generateLiveLines()
+    },
     generateLiveLines () {
-      const gap = two.width / this.bufferLength
-
       liveLines = []
-      for (let i = 0; i < this.bufferLength; i++) {
-        const y = two.height - (i * gap)
-        const line = two.makeLine(0, y, LIVE_WIDTH, y)
 
+      const gapper = this.getGap()
+      for (let i = 0; i < this.bufferLength; i++) {
+        const y = two.height - gapper(i)
+
+        const line = two.makeLine(0, y, LIVE_WIDTH, y)
         line.stroke = 'black'
         line.linewidth = 1
 
@@ -58,7 +70,7 @@ export default {
     drawLive () {
       this.analyser.getByteFrequencyData(dataArray)
       
-      const colour = getColour('red')
+      const colour = getColour(this.color)
 
       for (let i = 0; i < this.bufferLength; i++) {
         const opacity = dataArray[i] / BYTE_LENGTH

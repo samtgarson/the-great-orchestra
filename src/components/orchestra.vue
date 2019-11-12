@@ -1,11 +1,16 @@
 <template>
   <div v-if="analyser">
-    <visualiser :analyser="analyser" :color="color" />
-    <button id="stop" @click="stop">Stop</button>
+    <visualiser :analyser="analyser" :colour="colour" />
+    <div class="controls">
+      <select v-model="colour">
+        <option v-for="option in colours" :value="option">{{ option }}</option>
+      </select>
+      <button id="stop" @click="stop">Stop</button>
+    </div>
   </div>
   <div class="orchestra" v-else-if="!error">
     <button @click="createMicStream">Use your microphone</button>
-    <button @click="createAudioStream">Use an audio file</button>
+    <button disabled @click="createAudioStream">Use an audio file</button>
   </div>
   <p v-else>{{ error }}</p>
 </template>
@@ -14,6 +19,7 @@
 import getUserMedia from 'get-user-media-promise'
 import MicrophoneStream from 'microphone-stream'
 import Visualiser from '@/components/visualiser.vue'
+import { colours } from '@/services/get-colour'
 
 export default {
   name: 'orchestra',
@@ -22,12 +28,9 @@ export default {
     return {
       analyser: null,
       stream: null,
-      error: false
-    }
-  },
-  computed: {
-    color () {
-      return this.$route.query.color || 'red'
+      error: false,
+      colour: 'blue',
+      colours: Object.keys(colours)
     }
   },
   methods: {
@@ -61,9 +64,15 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#stop {
+.controls {
   position: absolute;
   bottom: 10px;
   left: 10px;
+  display: flex;
+  flex-direction: column;
+
+  * {
+    margin-top: 10px;
+  }
 }
 </style>

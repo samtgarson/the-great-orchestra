@@ -4,78 +4,78 @@
 
 <script>
 import Two from 'two.js'
-import getColour from '@/services/get-colour'
+import { FFT_SIZE, LIVE_WIDTH } from '@/constants'
+import LiveLines from '@/services/live-lines'
+import SoundGroup from '@/services/sound-group'
 
-const BYTE_LENGTH = 255
-const LIVE_WIDTH = 250
-const FFT_SIZE = 1024
-
-const params = { fullscreen: true, type: Two.Types.canvas }
+const params = { fullscreen: true, type: Two.Types.svg }
 const two = new Two(params)
 let dataArray
 let liveLines
+let soundGroups = []
 
 export default {
   name: 'visualiser',
-  props: ['analyser', 'color'],
+  props: ['analyser', 'colour'],
   data () {
-    return { bufferLength: 0, running: true }
+    return {
+      bufferLength: 0
+    }
   },
   mounted () {
     this.analyser.fftSize = FFT_SIZE;
     this.bufferLength = this.analyser.frequencyBinCount
     dataArray = new Uint8Array(this.bufferLength)
 
-    two.bind('resize', () => this.setup())
-    two.bind('update', () => this.draw())
+    two.bind('resize', this.setup)
+    two.bind('update', this.draw)
     
     this.setup()
     two.appendTo(this.$el).play()
   },
+  beforeDestroy () {
+    two.unbind('resize', this.setup)
+    two.unbind('update', this.draw)
+    two.clear()
+    dataArray = null
+    liveLines = null
+    soundGroups = []
+  },
+  watch: {
+    colour () { this.setup() }
+  },
   methods: {
     getGap () {
-      const EXPO_FACTOR = 0.9999
-      const gap = (two.height / this.bufferLength) * 1.3
-
-      return i => i * (gap * Math.pow(EXPO_FACTOR, i))
+      return getGap(this.bufferLength)
     },
     setup () {
       two.clear()
 
+      liveLines = new LiveLines(two, this.bufferLength, this.colour)
       this.drawDivider()
-      this.generateLiveLines()
-    },
-    generateLiveLines () {
-      liveLines = []
-
-      const gapper = this.getGap()
-      for (let i = 0; i < this.bufferLength; i++) {
-        const y = two.height - gapper(i)
-
-        const line = two.makeLine(0, y, LIVE_WIDTH, y)
-        line.stroke = 'black'
-        line.linewidth = 1
-
-        liveLines.push(line)
-      }
     },
     draw () {
-      this.drawLive()
+      this.analyser.getByteFrequencyData(dataArray)
+      liveLines.draw(dataArray, this.color)
+
+      for (let i=0; i < soundGroups.length; i++) {
+        const g = soundGroups[i]
+        g.draw()
+
+        if (g.group.translation.x > two.width) {
+          two.scene.remove(g.group)
+          soundGroups.splice(i, 1)
+        }
+      }
+
+      if (two.frameCount % 2 !== 0) return
+      const index = soundGroups.length
+      soundGroups.push(new SoundGroup(two, dataArray, this.colour))
     },
     drawDivider () {
       const line = two.makeLine(LIVE_WIDTH, 0, LIVE_WIDTH, two.height)
       line.stroke = 'white'
-      line.linewidth = 0.5
-    },
-    drawLive () {
-      this.analyser.getByteFrequencyData(dataArray)
-      
-      const colour = getColour(this.color)
-
-      for (let i = 0; i < this.bufferLength; i++) {
-        const opacity = dataArray[i] / BYTE_LENGTH
-        liveLines[i].stroke = colour(opacity)
-      }
+      line.linewidth = 1
     }
   }
 }

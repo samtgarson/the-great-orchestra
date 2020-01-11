@@ -16,6 +16,8 @@
   right: 0;
   background-color: black;
   color: white;
+  font-family: sans-serif;
+  font-size: 14px;
 }
 
 #nav {

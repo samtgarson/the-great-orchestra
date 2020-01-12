@@ -106,13 +106,13 @@ export default {
 }
 
 button, .button {
-  font-size: 0.8rem;
+  font-family: inherit;
+  font-size: 1rem;
   display: inline-block;
   background-color: transparent;
-  border: 1px solid white;
+  border: 2px solid white;
   color: white;
   padding: 5px 16px;
-  border-radius: 20px;
   margin: 10px;
 
   &[disabled] {
